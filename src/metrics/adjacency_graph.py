@@ -24,7 +24,7 @@ class AdjacencyGraph(ContextDecorator):
         # - Add data dir -
         self.data_path = root.joinpath('data')
         # - Add save dir -
-        self.save_dir = self.data_path.joinpath("collaboration", "covid", "adjacency_matrices")
+        self.save_dir = self.data_path.joinpath("collaboration", "adjacency_matrices")
         # - Container to hold saved results -
         self.all_repos = defaultdict(None)
         return self
