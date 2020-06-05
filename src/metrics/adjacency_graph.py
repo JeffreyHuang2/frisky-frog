@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+from statistics import median
 from pathlib import Path
 from collections import defaultdict
 from contextlib import ContextDecorator
@@ -24,7 +25,7 @@ class AdjacencyGraph(ContextDecorator):
         # - Add data dir -
         self.data_path = root.joinpath('data')
         # - Add save dir -
-        self.save_dir = self.data_path.joinpath("collaboration", "adjacency_matrices")
+        self.save_dir = self.data_path.joinpath("collaboration", "covid", "top-9-repos", "adjacency-matrices")
         # - Container to hold saved results -
         self.all_repos = defaultdict(None)
         return self
@@ -108,7 +109,14 @@ class AdjacencyGraph(ContextDecorator):
             else:
                 adjacency_list[issue_author] = {comment_author:1}
         
+        #calculate median_indegree
+        indegrees = []
+        for key in adjacency_list.keys():
+            indegrees.append(len(adjacency_list[key]))
+        median_indegree = median(indegrees)
+
         adjacency_matrix = {}
+        adjacency_matrix['MID'] = round(median_indegree/len(authors), 3)
         #fill in adjacency matrix with 0's
         for i in authors:
             adjacency_matrix[i] = {}
@@ -124,12 +132,11 @@ class AdjacencyGraph(ContextDecorator):
 
     def __call__(self):
         #iterate through all json files in collaboration/covid directory
-        os.chdir('/home/jyh2131/frisky-frog/data/collaboration/covid')
+        os.chdir('/local/jyh2131/frisky-frog/data/collaboration/covid/top-9-repos/comments')
 
         fileList = []
-        keywordList = []
 
-        for root, dirs, files in os.walk('/home/jyh2131/frisky-frog/data/collaboration/covid/'):
+        for root, dirs, files in os.walk('/local/jyh2131/frisky-frog/data/collaboration/covid/top-9-repos/comments'):
             
             for name in files:
                 fileList.append(os.path.join(root, name))
@@ -162,16 +169,3 @@ if __name__ == "__main__":
     with AdjacencyGraph() as adjacency_graph:
         adjacency_graph()
 
-
-
-
-"""
-        #create adjacency_matrix
-        adjacency_matrix = [[adjacency_list[authors[i]][authors[j]] for i in range(len(authors))] for j in range(len(authors))]
-        
-        i=0
-        for rows in adjacency_matrix:
-            print('{:14s}'.format(authors[i]), end =" ")
-            i+=1
-            print(" ".join(map(str, rows)))
-"""
